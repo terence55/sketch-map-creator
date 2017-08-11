@@ -1,0 +1,32 @@
+{
+  "author" : "Terence Wu",
+  "bundleVersion" : 1,
+  "commands" : [
+    {
+      "script" : "main.cocoascript",
+      "name" : "Create Baidu Map",
+      "handler" : "commandCreateBaiduMap",
+      "identifier" : "commandCreateBaiduMap"
+    },
+    {
+      "script" : "main.cocoascript",
+      "name" : "Create Mapbox Map",
+      "handler" : "commandCreateMapboxMap",
+      "identifier" : "commandCreateMapboxMap"
+    }
+  ],
+  "menu" : {
+    "items" : [
+      "commandCreateBaiduMap",
+      "commandCreateMapboxMap"
+    ],
+    "title" : "Map Creator"
+  },
+  "homepage" : "https://github.com/terence55/sketch-map-creator",
+  "identifier" : "io.terence.sketch.mapcreator",
+  "appcast": "https://raw.githubusercontent.com/terence55/sketch-map-creator/master/appcast.xml",
+  "version" : "1.0.0",
+  "description" : "Plugin to create a static map(Baidu, MapBox) with custom options",
+  "authorEmail" : "trence320@163.com",
+  "name" : "Map Creator"
+}

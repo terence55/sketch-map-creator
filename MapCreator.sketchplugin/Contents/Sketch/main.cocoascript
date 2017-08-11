@@ -1,0 +1,12 @@
+@import "baidu.js";
+@import "mapbox.js";
+
+function commandCreateBaiduMap(context) {
+  var map = new BaiduMap();
+  map.createMap(context);
+}
+
+function commandCreateMapboxMap(context) {
+  var map = new Mapbox();
+  map.createMap(context);
+}
