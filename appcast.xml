@@ -14,7 +14,7 @@
             </ul>
           ]]>
         </description>
-        <enclosure url="https://github.com/terence55/sketch-map-creator/archive/v1.0.0.zip" sparkle:version="1.0.0" />
+        <enclosure url="https://codeload.github.com/terence55/sketch-map-creator/zip/1.0.0" sparkle:version="1.0.0" />
       </item>
   </channel>
 </rss>

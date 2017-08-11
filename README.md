@@ -11,7 +11,7 @@ It's not so easy to access Google Maps in c h n for someone. So I develop this p
 
 ## Installation
 
-- [Download](https://github.com/terence55/sketch-map-creator/archive/v1.0.0.zip) and unzip.
+- [Download](https://codeload.github.com/terence55/sketch-map-creator/zip/1.0.0) and unzip.
 - Open the file 'MapCreator.sketchplugin' for auto installation.
     
 ## Usage
