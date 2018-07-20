@@ -81,7 +81,11 @@ function fillLayer(context, imageUrl, layer) {
   var imageData = NSImage.alloc().initWithData(data);
   var fill = layer.style().fills().firstObject();
   fill.setFillType(4);
-  fill.setImage(MSImageData.alloc().initWithImage_convertColorSpace(imageData, false));
+  if (MSApplicationMetadata.metadata().appVersion < 47) {
+    fill.setImage(MSImageData.alloc().initWithImageConvertingColorSpace(imageData, false));
+  } else {
+    fill.setImage(MSImageData.alloc().initWithImage(imageData));
+  }
   fill.setPatternFillType(1);
   context.document.showMessage("Map created");
 }
