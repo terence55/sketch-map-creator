@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+  <meta name='viewport' content='initial-scale=1.0,maximum-scale=1,user-scalable=no' />
+  <style type='text/css'>
+    body, html, #map { width: 100%; height: 100%; overflow: hidden; margin:0; }
+  </style>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyApdHVaG_6lBal7DLBPVjzQ2lvlSLfykc8&callback=initMap" async defer></script>
+  <title>GoogleMap</title>
+</head>
+<body>
+  <div id='map'></div>
+</body>
+<script type='text/javascript'>
+  var options;
+  var firstLoad = true;
+
+  function updateHash(hash) {
+    window.location.hash = hash + '&date=' + new Date().getTime();
+    return false;
+  }
+
+  function getOptions() {
+    var center = map.getCenter();
+    var zoom = map.getZoom();
+    updateHash('centerLng=' + center.lng() + '&centerLat=' + center.lat() + '&zoom=' + zoom);
+  }
+
+  function setOptions(param) {
+    if (!param) {
+      return;
+    }
+    options = param;
+  }
+
+  function setType(type) {
+    if (!type) {
+      return;
+    }
+    map.setOptions({
+      mapTypeId: type
+    });
+  }
+
+  var map;
+  function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: {lat: 39.915, lng: 116.404},
+      zoom: 11,
+      disableDefaultUI: true,
+      zoomControl: true
+    });
+    map.addListener('tilesloaded', function() {
+      if (!firstLoad) {
+        return;
+      }
+      firstLoad = false;
+      if (options && options.center) {
+        map.setCenter(new google.maps.LatLng(options.center.lat, options.center.lng));
+        map.setZoom(options.zoom || 11);
+      }
+      getOptions();
+    });
+    map.addListener('dragend', function() {
+      getOptions();
+    });
+    map.addListener('zoom_changed', function() {
+      getOptions();
+    });
+  }
+</script>
+</html>

@@ -1,3 +1,9 @@
+/**
+ * mapbox.js
+ *
+ * Copyright (c) 2017-present, Terence Wu.
+ */
+
 @import "common.js";
 
 function Mapbox() { }
@@ -5,9 +11,6 @@ function Mapbox() { }
 Mapbox.prototype.prefix = 'mapbox';
 Mapbox.prototype.maxWidth = 1280;
 Mapbox.prototype.maxHeight = 1280;
-Mapbox.prototype.minZoom = 0;
-Mapbox.prototype.maxZoom = 22;
-Mapbox.prototype.zoomLevels = [];
 Mapbox.prototype.types = [
   'streets',
   'light',
@@ -24,83 +27,99 @@ Mapbox.prototype.types = [
   'emerald',
   'high-contrast'
 ];
-Mapbox.prototype.minLon = -180;
-Mapbox.prototype.maxLon = 180;
-Mapbox.prototype.minLat = -85.0511;
-Mapbox.prototype.maxLat = 85.0511;
 Mapbox.prototype.ak = 'pk.eyJ1IjoidHJlbmNlMzIwIiwiYSI6ImNqNjRobjF0czFrZGMzMnBvN3VzYzQxenMifQ.BJml_qE3BhBJ2bPodjwfeg';
 
 Mapbox.prototype.createMap = function (context) {
-  calcZoomLevels(this.zoomLevels, this.minZoom, this.maxZoom);
   if (!checkLayer(context.selection)) {
     return;
   }
   var app = NSApplication.sharedApplication();
   var viewIndex = [];
-  var dialog = this.buildOptionDialog(viewIndex);
+  var dialog = this.buildOptionDialog(viewIndex, context);
   var options = handleDialog(dialog, viewIndex, this.prefix, dialog.runModal());
-  if (!checkOptions(options)) {
+  if (!options) {
     return;
   }
-  var coordinate = options.center.split(',');
-  if (coordinate.length !== 2
-    || (isNaN(coordinate[0] || coordinate[1]))
-    || (coordinate[0] < this.minLon || coordinate[0] > this.maxLon)
-    || (coordinate[1] < this.minLat || coordinate[1] > this.maxLat)) {
-    app.displayDialog_withTitle('Please enter valid center, longitude must be between -180 and 180, latitude must be between -85.0511 and 85.0511', 'Invalid center');
-    return;
+  var shouldRemember = getOption('remember', 0, this.prefix);
+  if (shouldRemember == 1) {
+    setOption('lng', this.centerLng, this.prefix);
+    setOption('lat', this.centerLat, this.prefix);
+    setOption('zoom', this.zoom, this.prefix);
   }
   var layer = context.selection[0];
   var layerSizes = layer.frame();
   var width = Math.min(parseInt([layerSizes width]), this.maxWidth);
   var height = Math.min(parseInt([layerSizes height]), this.maxHeight);
-  var imageUrl = 'https://api.mapbox.com/v4/mapbox.' + options.type + '/' + options.center + ',' + options.zoom + '/' + width + 'x' + height + '.jpg90?access_token=' + this.ak;
+  var imageUrl = 'https://api.mapbox.com/v4/mapbox.' + options.type + '/' + this.centerLng + ',' + this.centerLat + ',' + this.zoom + '/' + width + 'x' + height + '.jpg90?access_token=' + this.ak;
   fillLayer(context, imageUrl, layer);
 }
 
-Mapbox.prototype.buildOptionDialog = function (viewIndex) {
-  var remember = getOption('remember', 0, this.prefix);
+Mapbox.prototype.buildOptionDialog = function (viewIndex, context) {
+  var shouldRemember = getOption('remember', 0, this.prefix);
 
-  var dialogWindow = COSAlertWindow.new();
-  dialogWindow.setMessageText('Map Creator');
-  dialogWindow.setInformativeText('Input your options to create a map');
-
-  dialogWindow.addTextLabelWithValue('Input your map center');
-  var center = createTextField(remember == 0 ? '' : getOption('center', '', this.prefix), 'Coordinate like \'116.403874,39.914888\'');
-  dialogWindow.addAccessoryView(center);
-
-  dialogWindow.addTextLabelWithValue('Select zoom level');
-  var zoom = createSelect(this.zoomLevels, remember == 0 ? 0 : getOption('zoom', 0, this.prefix));
-  dialogWindow.addAccessoryView(zoom);
-
-  dialogWindow.addTextLabelWithValue('Select map type');
-  var type = createSelect(this.types, remember == 0 ? 0 : getOption('type', 0, this.prefix), 150);
-  dialogWindow.addAccessoryView(type);
-
-  var remember = createCheck('Remember my options', remember);
-  dialogWindow.addAccessoryView(remember);
+  var dialogWindow = NSAlert.alloc().init();
+  dialogWindow.setMessageText(tipsTargetCenter);
+  var dialogContent = NSView.alloc().init();
+  dialogContent.setFlipped(true);
+  dialogContent.frame = NSMakeRect(0, 0, 500, 430);
+  dialogWindow.accessoryView = dialogContent;
 
   dialogWindow.addButtonWithTitle('OK');
   dialogWindow.addButtonWithTitle('Cancel');
 
-  viewIndex.push({
-    key: 'center',
-    index: 1,
-    type: 'string'
+  var typeIndex = getOption('type', 0, this.prefix);
+  var webView = createWebView('mapbox.html', context);
+  var windowObject = webView.windowScriptObject();
+  var self = this;
+  var delegate = new MochaJSDelegate({
+    "webView:didFinishLoadForFrame:" : (function(webView, webFrame) {
+        if (shouldRemember == 1) {
+          var options = {
+            center: {
+              lng: parseFloat(getOption('lng', 0, self.prefix)),
+              lat: parseFloat(getOption('lat', 0, self.prefix))
+            },
+            zoom: parseInt(getOption('zoom', 11, self.prefix))
+          };
+          windowObject.evaluateWebScript('setOptions(' + JSON.stringify(options) + ')');
+          var mapType = 'mapbox.' + self.types[typeIndex];
+          windowObject.evaluateWebScript('setType("' + mapType + '")');
+        }
+    }),
+    "webView:didChangeLocationWithinPageForFrame:" : (function(webView, webFrame) {
+        var locationHash = windowObject.evaluateWebScript("window.location.hash");
+        var hash = parseHash(locationHash);
+        self.centerLng = hash.centerLng;
+        self.centerLat = hash.centerLat;
+        self.zoom = hash.zoom;
+    })
   });
-  viewIndex.push({
-    key: 'zoom',
-    index: 3,
-    type: 'select'
+  webView.setFrameLoadDelegate_(delegate.getClassInstance());
+  dialogContent.addSubview(webView);
+
+  var typeLabel = createLabel('Select map type',  NSMakeRect(0, 360, 100, 20));
+  dialogContent.addSubview(typeLabel);
+
+  var typeTag = 1;
+  var type = createSelect(this.types, shouldRemember == 0 ? 0 : getOption('type', 0, this.prefix), NSMakeRect(120, 360, 200, 20), typeTag, function(sender) {
+    var mapType = 'mapbox.' + self.types[sender.indexOfSelectedItem()];
+    windowObject.evaluateWebScript('setType("' + mapType + '")');
   });
+  dialogContent.addSubview(type);
+
+  var checkTag = 2;
+  var remember = createCheck('Remember my options', shouldRemember == 1, NSMakeRect(0, 390, 150, 20), checkTag);
+  dialogContent.addSubview(remember);
+
   viewIndex.push({
     key: 'type',
-    index: 5,
+    index: typeTag,
     type: 'select'
   });
+
   viewIndex.push({
     key: 'remember',
-    index: 6,
+    index: checkTag,
     type: 'string'
   });
 

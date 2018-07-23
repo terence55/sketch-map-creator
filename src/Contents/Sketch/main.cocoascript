@@ -1,5 +1,6 @@
 @import "baidu.js";
 @import "mapbox.js";
+@import "google.js";
 
 function commandCreateBaiduMap(context) {
   var map = new BaiduMap();
@@ -8,5 +9,10 @@ function commandCreateBaiduMap(context) {
 
 function commandCreateMapboxMap(context) {
   var map = new Mapbox();
+  map.createMap(context);
+}
+
+function commandCreateGoogleMap(context) {
+  var map = new Google();
   map.createMap(context);
 }

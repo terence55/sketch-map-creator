@@ -3,18 +3,18 @@
   <channel>
     <title>Map Creator</title>
     <link>https://github.com/terence55/sketch-map-creator</link>
-    <description>Plugin to create a static map(Baidu, MapBox) with custom options</description>
+    <description>Plugin to visually create static map(BaiduMap, MapBox, GoogleMap) with custom options</description>
     <language>en</language>
       <item>
-        <title>Version 1.0.0</title>
+        <title>Version 1.1.0</title>
         <description>
           <![CDATA[
             <ul>
-              <li>Plugin to create a static map(Baidu, MapBox) with custom options</li>
+              <li>Plugin to visually create static map(BaiduMap, MapBox, GoogleMap) with custom options</li>
             </ul>
           ]]>
         </description>
-        <enclosure url="https://codeload.github.com/terence55/sketch-map-creator/zip/1.0.0" sparkle:version="1.0.0" />
+        <enclosure url="https://codeload.github.com/terence55/sketch-map-creator/zip/1.1.0" sparkle:version="1.1.0" />
       </item>
   </channel>
 </rss>

@@ -1,35 +1,25 @@
 /**
- * mapbox.js
+ * google.js
  *
  * Copyright (c) 2017-present, Terence Wu.
  */
 
 @import "common.js";
 
-function Mapbox() { }
+function Google() { }
 
-Mapbox.prototype.prefix = 'mapbox';
-Mapbox.prototype.maxWidth = 1280;
-Mapbox.prototype.maxHeight = 1280;
-Mapbox.prototype.types = [
-  'streets',
-  'light',
-  'dark',
+Google.prototype.prefix = 'google';
+Google.prototype.maxWidth = 640;
+Google.prototype.maxHeight = 640;
+Google.prototype.types = [
+  'roadmap',
   'satellite',
-  'streets-satellite',
-  'wheatpaste',
-  'streets-basic',
-  'comic',
-  'outdoors',
-  'run-bike-hike',
-  'pencil',
-  'pirates',
-  'emerald',
-  'high-contrast'
+  'terrain',
+  'hybrid'
 ];
-Mapbox.prototype.ak = 'pk.eyJ1IjoidHJlbmNlMzIwIiwiYSI6ImNqNjRobjF0czFrZGMzMnBvN3VzYzQxenMifQ.BJml_qE3BhBJ2bPodjwfeg';
+Google.prototype.ak = 'AIzaSyApdHVaG_6lBal7DLBPVjzQ2lvlSLfykc8';
 
-Mapbox.prototype.createMap = function (context) {
+Google.prototype.createMap = function (context) {
   if (!checkLayer(context.selection)) {
     return;
   }
@@ -50,11 +40,11 @@ Mapbox.prototype.createMap = function (context) {
   var layerSizes = layer.frame();
   var width = Math.min(parseInt([layerSizes width]), this.maxWidth);
   var height = Math.min(parseInt([layerSizes height]), this.maxHeight);
-  var imageUrl = 'https://api.mapbox.com/v4/mapbox.' + options.type + '/' + this.centerLng + ',' + this.centerLat + ',' + this.zoom + '/' + width + 'x' + height + '.jpg90?access_token=' + this.ak;
+  var imageUrl = 'https://maps.googleapis.com/maps/api/staticmap?center=' + this.centerLat + ',' + this.centerLng + '&zoom=' + this.zoom + '&size=' + width + 'x' + height + '&maptype=' + options.type + '&scale=2&key=' + this.ak;
   fillLayer(context, imageUrl, layer);
 }
 
-Mapbox.prototype.buildOptionDialog = function (viewIndex, context) {
+Google.prototype.buildOptionDialog = function (viewIndex, context) {
   var shouldRemember = getOption('remember', 0, this.prefix);
 
   var dialogWindow = NSAlert.alloc().init();
@@ -68,7 +58,7 @@ Mapbox.prototype.buildOptionDialog = function (viewIndex, context) {
   dialogWindow.addButtonWithTitle('Cancel');
 
   var typeIndex = getOption('type', 0, this.prefix);
-  var webView = createWebView('mapbox.html', context);
+  var webView = createWebView('google.html', context);
   var windowObject = webView.windowScriptObject();
   var self = this;
   var delegate = new MochaJSDelegate({
@@ -82,7 +72,7 @@ Mapbox.prototype.buildOptionDialog = function (viewIndex, context) {
             zoom: parseInt(getOption('zoom', 11, self.prefix))
           };
           windowObject.evaluateWebScript('setOptions(' + JSON.stringify(options) + ')');
-          var mapType = 'mapbox.' + self.types[typeIndex];
+          var mapType = self.types[typeIndex];
           windowObject.evaluateWebScript('setType("' + mapType + '")');
         }
     }),
@@ -102,7 +92,7 @@ Mapbox.prototype.buildOptionDialog = function (viewIndex, context) {
 
   var typeTag = 1;
   var type = createSelect(this.types, shouldRemember == 0 ? 0 : getOption('type', 0, this.prefix), NSMakeRect(120, 360, 200, 20), typeTag, function(sender) {
-    var mapType = 'mapbox.' + self.types[sender.indexOfSelectedItem()];
+    var mapType = self.types[sender.indexOfSelectedItem()];
     windowObject.evaluateWebScript('setType("' + mapType + '")');
   });
   dialogContent.addSubview(type);

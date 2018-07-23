@@ -1,4 +1,12 @@
-var pluginIdentifier = "io.terence.sketch.mapcreator";
+/**
+ * common.js
+ *
+ * Copyright (c) 2017-present, Terence Wu.
+ */
+
+var pluginIdentifier = 'io.terence.sketch.mapcreator';
+
+var tipsTargetCenter = 'Move map to target the center you want';
 
 function checkLayer(selectedLayers) {
   var app = NSApplication.sharedApplication();
@@ -14,57 +22,58 @@ function checkLayer(selectedLayers) {
   return true;
 }
 
-function checkOptions(options) {
-  var app = NSApplication.sharedApplication();
-  if (!options) {
-    return false;
+function createLabel(value, frame) {
+  var textField = NSTextField.alloc().initWithFrame(frame);
+  textField.setEditable(false);
+  textField.setBordered(false);
+  textField.setBackgroundColor(NSColor.colorWithRed_green_blue_alpha(0, 0, 0, 0));
+  if (value) {
+    textField.setStringValue(value);
   }
-  if (!options.center) {
-    app.displayDialog_withTitle('Please enter valid center', 'Invalid center');
-    return false;
-  }
-  return true;
+  return textField;
 }
 
-function createTextField(value, placeholder) {
-  var textField = NSTextField.alloc().initWithFrame(NSMakeRect(0, 0, 300, 24));
+function createTextField(value, placeholder, frame, tag) {
+  var textField = NSTextField.alloc().initWithFrame(frame);
   if (value) {
     textField.setStringValue(value);
   }
   if (placeholder) {
     textField.setPlaceholderString(placeholder);
   }
+  textField.setTag(tag);
   return textField;
 }
 
-function createSelect(options, selectedIndex, width) {
+function createSelect(options, selectedIndex, frame, tag, onSelectChange) {
   var selIdx = selectedIndex || 0;
-  var select = NSPopUpButton.alloc().initWithFrame(NSMakeRect(0, 0, width || 100, 28));
+  var select = NSPopUpButton.alloc().initWithFrame(frame);
   var i;
   if (options) {
     select.addItemsWithTitles(options);
     select.selectItemAtIndex(selIdx);
   }
+  select.setTag(tag);
+  if (onSelectChange) {
+    select.setCOSJSTargetFunction(onSelectChange);
+  }
   return select;
 }
 
-function createCheck(title, checked) {
-  var check = NSButton.alloc().initWithFrame(NSMakeRect(0, 0, 200, 20))
+function createCheck(title, checked, frame, tag) {
+  var check = NSButton.alloc().initWithFrame(frame);
   check.setButtonType(NSSwitchButton);
   check.setBezelStyle(NSRoundedBezelStyle);
   check.setTitle(title);
   check.setState(checked == 0 ? NSOffState : NSOnState);
+  check.setTag(tag);
   return check;
 }
 
-function calcZoomLevels(zoomLevels, minZoom, maxZoom) {
-  if (zoomLevels.length > 0) {
-    return;
-  }
-  var i;
-  for (i = minZoom; i <= maxZoom; i++) {
-    zoomLevels.push(i.toString());
-  }
+function createWebView(uri, context) {
+  var webView = WebView.alloc().initWithFrame(NSMakeRect(0, 0, 500, 350));
+  webView.setMainFrameURL_(context.plugin.urlForResourceNamed(uri).path());
+  return webView;
 }
 
 function fillLayer(context, imageUrl, layer) {
@@ -87,7 +96,7 @@ function fillLayer(context, imageUrl, layer) {
     fill.setImage(MSImageData.alloc().initWithImage(imageData));
   }
   fill.setPatternFillType(1);
-  context.document.showMessage("Map created");
+  context.document.showMessage("Map has been created");
 }
 
 function fetchImage(url) {
@@ -98,14 +107,14 @@ function fetchImage(url) {
 
 function handleDialog(dialog, viewIndex, prefix, responseCode) {
   saveOptions(dialog, viewIndex, prefix);
-  if (responseCode == "1000") {
+  if (responseCode == NSAlertFirstButtonReturn) {
     var result = {};
     var i;
     for (i = 0; i < viewIndex.length; i++) {
       if (viewIndex[i].type === 'select') {
-        result[viewIndex[i].key] = dialog.viewAtIndex(viewIndex[i].index).titleOfSelectedItem();
+        result[viewIndex[i].key] = dialog.accessoryView().viewWithTag(viewIndex[i].index).titleOfSelectedItem();
       } else if (viewIndex[i].type === 'string') {
-        result[viewIndex[i].key] = dialog.viewAtIndex(viewIndex[i].index).stringValue();
+        result[viewIndex[i].key] = dialog.accessoryView().viewWithTag(viewIndex[i].index).stringValue();
       }
     };
     return result;
@@ -117,11 +126,15 @@ function saveOptions(dialog, viewIndex, prefix) {
   var i;
   for (i = 0; i < viewIndex.length; i++) {
     if (viewIndex[i].type === 'select') {
-      setPreferences(prefix + '.' + viewIndex[i].key, dialog.viewAtIndex(viewIndex[i].index).indexOfSelectedItem());
+      setOption(viewIndex[i].key, dialog.accessoryView().viewWithTag(viewIndex[i].index).indexOfSelectedItem(), prefix);
     } else if (viewIndex[i].type === 'string') {
-      setPreferences(prefix + '.' + viewIndex[i].key, dialog.viewAtIndex(viewIndex[i].index).stringValue());
+      setOption(viewIndex[i].key, dialog.accessoryView().viewWithTag(viewIndex[i].index).stringValue(), prefix);
     }
   };
+}
+
+function setOption(key, value, prefix) {
+  return setPreferences(prefix + '.' + key, value);
 }
 
 function getOption(key, defaultValue, prefix) {
@@ -150,4 +163,19 @@ function setPreferences(key, value) {
   preferences.setObject_forKey(value, key);
   userDefaults.setObject_forKey(preferences, pluginIdentifier);
   userDefaults.synchronize();
+}
+
+function parseHash(url) {
+  url = url;
+  var vars = {};
+  var hashes = url.slice(url.indexOf('#') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++) {
+       var hash = hashes[i].split('=');
+       if(hash.length > 1) {
+         vars[hash[0].toString()] = hash[1];
+       } else {
+         vars[hash[0].toString()] = null;
+       }
+    }
+    return vars;
 }
