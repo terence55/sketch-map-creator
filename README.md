@@ -1,10 +1,10 @@
 # Map Creator for Sketch
 
-## Features
+## Features (v1.1.0)
 
 - Plugin for Sketch to create a static map with custom options.
-- Visual selection for map center and zoom level supported.
-- BaiduMap, MapBox and GoogleMap have been supported now.
+- ***Visual selection for map center and zoom level supported(new feature).***
+- BaiduMap, MapBox and ***GoogleMap(new)*** have been supported now.
 - Easy to extend for other map services.
 
 >BTW, to `eddiesigner`, author of `Map Generator`, it's not a good idea to copy and paste my code, rename some parameters, and make it as a product again.
