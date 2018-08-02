@@ -4,13 +4,55 @@
   <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
   <meta name='viewport' content='initial-scale=1.0,maximum-scale=1,user-scalable=no' />
   <style type='text/css'>
-    body, html, #map { width: 100%; height: 100%; overflow: hidden; margin:0; }
+    body, html { width: 100%; height: 100%; overflow: hidden; margin:0; }
+    #map {
+      width: calc(100% - 200px);
+      height: 100%;
+      margin:0;
+    }
+    #panel {
+      width: 200px;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    #searchBox {
+      width: calc(100% - 24px);
+      padding: 6px;
+      margin-left: 4px;
+    }
+    #results {
+      height: calc(100% - 40px);
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 6px;
+    }
+    .poi {
+      margin: 4px;
+      cursor: pointer;
+    }
+    .poi:hover {
+      background: #F0F0F0;
+    }
+    .poi-title {
+      font-size: 14px;
+      color: #111;
+    }
+    .poi-address {
+      font-size: 12px;
+      color: #666;
+    }
   </style>
   <script type='text/javascript' src='http://api.map.baidu.com/api?v=2.0&ak=4yWbU5UAZzPq3zG136ioc188jR1p6j0t'></script>
   <title>BaiduMap</title>
 </head>
 <body>
-  <div id='map'></div>
+  <div id="map"></div>
+  <div id="panel">
+    <div><input id="searchBox" placeholder="Press enter to search" onkeydown="keyEnter()"></div>
+    <div id="results"></div>
+  </div>
 </body>
 <script type='text/javascript'>
   var options;
@@ -34,6 +76,49 @@
     options = param;
   }
 
+  function keyEnter() {
+    if(event.keyCode == 13) {
+      var keywords = document.getElementById('searchBox').value;
+      if (keywords && keywords !== '') {
+        local.search(keywords, { forceLocal: false });
+      }
+    }
+  }
+
+  function fillResults(container, results, onClick) {
+    while(container.hasChildNodes()) {
+      container.removeChild(container.firstChild);
+    }
+    if (!results || results.length < 1) {
+      return;
+    }
+    for (var i = 0; i < results.length; i++) {
+      var node = document.createElement('div');
+      node.className = 'poi';
+      var title = document.createElement('div');
+      title.className = 'poi-title';
+      title.innerHTML = results[i].title;
+      var address = document.createElement('div');
+      address.className = 'poi-address';
+      address.innerHTML = results[i].address;
+      node.appendChild(title);
+      node.appendChild(address);
+      container.appendChild(node);
+      var location = results[i].location;
+      node.setAttribute('data-location', location.lng + ',' + location.lat)
+      node.addEventListener('click', function(event) {
+        var location = event.currentTarget.getAttribute('data-location');
+        if (location) {
+          var point = location.split(',');
+          if (onClick && typeof onClick === 'function') {
+            onClick(parseFloat(point[0]), parseFloat(point[1]));
+          }
+        }
+      }, false);
+    }
+    container.scrollTop = 0;
+  }
+
   var map = new BMap.Map('map');
   map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);
   map.enableScrollWheelZoom(true);
@@ -54,5 +139,34 @@
   map.addEventListener('zoomend',function(){
     getOptions();
   });
+
+  var searchOptions = {
+    onSearchComplete: function(results){
+      var container = document.getElementById('results');
+      var data = [];
+      if (local.getStatus() == BMAP_STATUS_SUCCESS) {
+        for (var i = 0; i < results.getCurrentNumPois(); i++) {
+          data.push({
+            title: results.getPoi(i).title,
+            address: results.getPoi(i).address,
+            location: results.getPoi(i).point
+          });
+        }
+      } else {
+        data.push({
+          title: 'No result',
+          address: '',
+        });
+      }
+      fillResults(container, data, function(lng, lat) {
+        if (map.getZoom() < 16) {
+          map.setZoom(16);
+        }
+        map.panTo(new BMap.Point(lng, lat))
+      });
+    }
+  };
+  var local = new BMap.LocalSearch(map, searchOptions);
+  local.setPageCapacity(100);
 </script>
 </html>

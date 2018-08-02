@@ -5,12 +5,23 @@
   <meta name='viewport' content='initial-scale=1.0,maximum-scale=1,user-scalable=no' />
   <style type='text/css'>
     body, html, #map { width: 100%; height: 100%; overflow: hidden; margin:0; }
+    #searchBox {
+      position: absolute;
+      z-index: 99;
+      width: 200px;
+      font-size: 14px;
+      height: 24px;
+      line-height: 24px;
+      top: 16px;
+      right: 16px;
+    }
   </style>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyApdHVaG_6lBal7DLBPVjzQ2lvlSLfykc8&callback=initMap" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyApdHVaG_6lBal7DLBPVjzQ2lvlSLfykc8&callback=initMap&libraries=places" async defer></script>
   <title>GoogleMap</title>
 </head>
 <body>
   <div id='map'></div>
+  <div><input id="searchBox" placeholder="Enter keywords"></div>
 </body>
 <script type='text/javascript'>
   var options;
@@ -67,6 +78,21 @@
     });
     map.addListener('zoom_changed', function() {
       getOptions();
+    });
+
+    var input = document.getElementById('searchBox');
+    var autocomplete = new google.maps.places.Autocomplete(input);
+    autocomplete.setFields(['address_components', 'geometry', 'icon', 'name']);
+    autocomplete.addListener('place_changed', function() {
+      var place = autocomplete.getPlace();
+      if (!place.geometry) {
+        return;
+      }
+      if (place.geometry.viewport) {
+        map.fitBounds(place.geometry.viewport);
+      } else {
+        map.setCenter(place.geometry.location);
+      }
     });
   }
 </script>

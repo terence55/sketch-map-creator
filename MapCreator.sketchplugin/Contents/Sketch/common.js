@@ -70,8 +70,8 @@ function createCheck(title, checked, frame, tag) {
   return check;
 }
 
-function createWebView(uri, context) {
-  var webView = WebView.alloc().initWithFrame(NSMakeRect(0, 0, 500, 350));
+function createWebView(uri, context, frame) {
+  var webView = WebView.alloc().initWithFrame(frame);
   webView.setMainFrameURL_(context.plugin.urlForResourceNamed(uri).path());
   return webView;
 }

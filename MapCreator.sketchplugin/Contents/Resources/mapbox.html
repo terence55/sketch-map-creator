@@ -64,5 +64,9 @@
   map.on('zoomend', function() {
     getOptions();
   });
+
+  map.addControl(L.mapbox.geocoderControl('mapbox.places', {
+    autocomplete: true
+  }));
 </script>
 </html>

@@ -45,13 +45,13 @@ BaiduMap.prototype.buildOptionDialog = function (viewIndex, context) {
   dialogWindow.setMessageText(tipsTargetCenter);
   var dialogContent = NSView.alloc().init();
   dialogContent.setFlipped(true);
-  dialogContent.frame = NSMakeRect(0, 0, 500, 400);
+  dialogContent.frame = NSMakeRect(0, 0, 800, 400);
   dialogWindow.accessoryView = dialogContent;
 
   dialogWindow.addButtonWithTitle('OK');
   dialogWindow.addButtonWithTitle('Cancel');
 
-  var webView = createWebView('baidu.html', context);
+  var webView = createWebView('baidu.html', context, NSMakeRect(0, 0, 800, 350));
   var windowObject = webView.windowScriptObject();
   var self = this;
   var delegate = new MochaJSDelegate({

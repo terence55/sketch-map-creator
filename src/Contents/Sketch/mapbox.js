@@ -68,7 +68,7 @@ Mapbox.prototype.buildOptionDialog = function (viewIndex, context) {
   dialogWindow.addButtonWithTitle('Cancel');
 
   var typeIndex = getOption('type', 0, this.prefix);
-  var webView = createWebView('mapbox.html', context);
+  var webView = createWebView('mapbox.html', context, NSMakeRect(0, 0, 500, 350));
   var windowObject = webView.windowScriptObject();
   var self = this;
   var delegate = new MochaJSDelegate({
