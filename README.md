@@ -1,6 +1,6 @@
 # Map Creator for Sketch
 
-## Features (v1.2.0)
+## Features (v1.2.1)
 
 - Plugin for Sketch to create a static map with custom options.
 - ***Visual selection for map center and zoom level supported(New feature).***
@@ -8,11 +8,11 @@
 - Easy to extend for other map services.
 - ***Support location search(New feature).***
 
->BTW, to `eddiesigner`, author of `Map Generator`, it's not a good idea to copy and paste my code, rename some parameters, and make it as a product again.
+***Now in latest version, you can select layer in Sketch 52+ correctly.***
 
 ## Installation
 
-- [Download](https://codeload.github.com/terence55/sketch-map-creator/zip/1.2.0) and unzip.
+- [Download](https://codeload.github.com/terence55/sketch-map-creator/zip/1.2.1) and unzip.
 - Open the file 'MapCreator.sketchplugin' for auto installation.
     
 ## Usage

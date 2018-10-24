@@ -1,6 +1,6 @@
 {
   "author" : "Terence Wu",
-  "bundleVersion" : 3,
+  "bundleVersion" : 5,
   "commands" : [
     {
       "script" : "main.cocoascript",
@@ -32,7 +32,7 @@
   "homepage" : "https://github.com/terence55/sketch-map-creator",
   "identifier" : "io.terence.sketch.mapcreator",
   "appcast": "https://raw.githubusercontent.com/terence55/sketch-map-creator/master/appcast.xml",
-  "version" : "1.2.0",
+  "version" : "1.2.1",
   "description" : "Plugin to visually create static map(BaiduMap, MapBox, GoogleMap) with custom options",
   "authorEmail" : "trence320@163.com",
   "name" : "Map Creator"

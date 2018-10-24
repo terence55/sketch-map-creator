@@ -6,7 +6,7 @@
     <description>Plugin to visually create static map(BaiduMap, MapBox, GoogleMap) with custom options</description>
     <language>en</language>
       <item>
-        <title>Version 1.2.0</title>
+        <title>Version 1.2.1</title>
         <description>
           <![CDATA[
             <ul>
@@ -14,7 +14,7 @@
             </ul>
           ]]>
         </description>
-        <enclosure url="https://codeload.github.com/terence55/sketch-map-creator/zip/1.2.0" sparkle:version="1.2.0" />
+        <enclosure url="https://codeload.github.com/terence55/sketch-map-creator/zip/1.2.1" sparkle:version="1.2.1" />
       </item>
   </channel>
 </rss>
