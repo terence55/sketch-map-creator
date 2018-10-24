@@ -15,7 +15,15 @@ function checkLayer(selectedLayers) {
     return false;
   }
   var layer = selectedLayers[0];
-  if ([layer class] !== MSShapeGroup) {
+  var validSelection = true;
+  if (MSApplicationMetadata.metadata().appVersion >= 52) {
+    if (layer.edited === undefined) {
+      validSelection = false;
+    }
+  } else if ([layer class] !== MSShapeGroup) {
+    validSelection = false;
+  }
+  if (!validSelection) {
     app.displayDialog_withTitle('Your selection was a ' + [layer name] + ', that is not a shape layer. Please select a shape layer.', 'Invalid layer type');
     return false;
   }
